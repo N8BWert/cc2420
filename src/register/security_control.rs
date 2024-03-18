@@ -15,7 +15,7 @@ pub struct SecurityControlRegister0 {
     // overflow section on page 33. Should be cleared if MAC level
     // security is not used or is implemented outside CC2420.
     #[builder(default = "true")]
-    rx_fifo_protection: bool,
+    pub rx_fifo_protection: bool,
     // Defines what to use for the first byte in CBC-MAC (does not
     // apply to CBC-MAC part of CCM):
     // 0: Use the first data byte as the first byte into CBC-MAC
@@ -25,22 +25,22 @@ pub struct SecurityControlRegister0 {
     // data byte).
     // This bit should be set high for CBC-MAC 802.15.4 inline security.
     #[builder(default = "true")]
-    sec_cbc_head: bool,
+    pub sec_cbc_head: bool,
     // Stand Alone Key select
     // 0: Key 0 is used
     // 1: Key 1 is used
     #[builder(default = "true")]
-    sec_sa_key_sel: bool,
+    pub sec_sa_key_sel: bool,
     // TX Key select
     // 0: Key 0 is used
     // 1: Key 1 is used
     #[builder(default = "true")]
-    sec_tx_key_sel: bool,
+    pub sec_tx_key_sel: bool,
     // RX Key select
     // 0: Key 0 is used
     // 1: Key 1 is used
     #[builder(default = "false")]
-    sec_rx_key_sel: bool,
+    pub sec_rx_key_sel: bool,
     // Number of bytes in authentication field for CBC-MAC, encoded
     // as (M-2)/2
     // 0: Reserved
@@ -48,14 +48,14 @@ pub struct SecurityControlRegister0 {
     // ...
     // 7: 16
     #[builder(default = "1")]
-    sec_m: u8,
+    pub sec_m: u8,
     // Security Mode
     // 0: In-line security is disabled
     // 1: CBC-MAC
     // 2: CTR
     // 3: CCM
     #[builder(default = "0")]
-    sec_mode: u8,
+    pub sec_mode: u8,
 }
 
 impl RegisterValue for SecurityControlRegister0 {

@@ -8,28 +8,28 @@ use derive_builder::Builder;
 /// Main Control Register
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Builder)]
 #[builder(no_std, build_fn(error(validation_error = false)))]
-pub(crate) struct MainControlRegister {
+pub struct MainControlRegister {
     // Active low reset of the entire circuit should be applied
     // before doing anything else
     #[builder(default = "true")]
     pub reset_n: bool,
     // Active low reset of the encryption module (Testing Only)
     #[builder(default = "true")]
-    enc_reset_n: bool,
+    pub enc_reset_n: bool,
     // Active low reset of the demodulator module (Testing Only)
     #[builder(default = "true")]
-    demod_reset_n: bool,
+    pub demod_reset_n: bool,
     // Active low rest of the modulator module (Testing Only)
     #[builder(default = "true")]
-    mod_reset_n: bool,
+    pub mod_reset_n: bool,
     // Active low reset of the frequency synthesizer module (Testing Only)
     #[builder(default = "true")]
-    fs_reset_n: bool,
+    pub fs_reset_n: bool,
     // Bypass the crystal osciallator and use a buffered version of the signal on
     // Q1 directly.  This can be used to apply an external rail-rail clock
     // signal to the Q1 pin.
     #[builder(default = "false")]
-    xosc16m_bypass: bool,
+    pub xosc16m_bypass: bool,
 }
 
 impl RegisterValue for MainControlRegister {

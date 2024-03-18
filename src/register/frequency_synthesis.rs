@@ -19,28 +19,28 @@ pub struct FrequencySynthesizerRegister {
     // 2: 256
     // 3: 512
     #[builder(default = "1")]
-    lock_threshold: u8,
+    pub lock_threshold: u8,
     // Calibration has been performed since the last time the
     // frequency synthesizer was turned on.
     // READ-ONLY
     #[builder(default = "false")]
-    cal_done: bool,
+    pub cal_done: bool,
     // Calibration status, "1" when calibration in progress and "0"
     // otherwise.
     // READ-ONLY
     #[builder(default = "false")]
-    cal_running: bool,
+    pub cal_running: bool,
     // Synchronisation window pulse width:
     // 0: 2 prescaler clock periods (recommended)
     // 1: 4 prescaler clock periods
     #[builder(default = "false")]
-    lock_length: bool,
+    pub lock_length: bool,
     // Frequency synthesizer lock status:
     // 0: Frequency synthesizer is out of lock
     // 1: Frequency synthesizer is in lock
     // READ-ONLY
     #[builder(default = "false")]
-    lock_status: bool,
+    pub lock_status: bool,
     // Frequency control word, controlling the RF operating frequency.
     // Fc. In transmit mode, the local oscillator (LO) frequency equals
     // Fc. In receive mode, the LO frequency is 2 MHz below Fc.
@@ -49,7 +49,7 @@ pub struct FrequencySynthesizerRegister {
     // 50 for further information
     // default = 357 = 2405 MHz
     #[builder(default = "357")]
-    frequency: u16,
+    pub frequency: u16,
 }
 
 impl RegisterValue for FrequencySynthesizerRegister {

@@ -17,7 +17,7 @@ pub struct SyncWordRegister {
     // the first symbol acquired by SYNCWORD.
     // The rest value is compliant with IEEE 802.15.4
     #[builder(default = "0xA70F")]
-    sync_word: u16,
+    pub sync_word: u16,
 }
 
 impl RegisterValue for SyncWordRegister {

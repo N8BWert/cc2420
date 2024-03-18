@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 derive_builder = "0.20.0"
+embedded-hal = "1.0.0"

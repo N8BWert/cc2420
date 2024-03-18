@@ -18,18 +18,18 @@ pub struct ModemControlRegister0 {
     // 1: Reserved frame types (100, 101, 110, 111) are always accepted
     // When address recognition is disabled, all frames are received
     #[builder(default = "false")]
-    reserved_frame_mode: bool,
+    pub reserved_frame_mode: bool,
     // Should be set high when the device is a PAN Coordinator.  Used for
     // filtering packets with no destination address, as specified in section
     // 7.5.6.2 in 802.15.4, D18
     #[builder(default = "false")]
-    pan_coordinator: bool,
+    pub pan_coordinator: bool,
     // Hardware Address decode enabled (0: Disabled, 1: Enabled)
     #[builder(default = "true")]
-    adr_decode: bool,
+    pub adr_decode: bool,
     // CCA Hysteresis in dB, values 0, through 7dB
     #[builder(default = "2")]
-    cca_hyst: u8,
+    pub cca_hyst: u8,
     // 0: Reserved
     // 1: CCA=1 when RSSI_VAL < CCA_THR - CCA_HYST
     //    CCA=0 when RSSI_VAL >= CCA_THR
@@ -39,17 +39,17 @@ pub struct ModemControlRegister0 {
     //          valid IEEE 802.15.4 data.
     //    CCA=0 when RSSI_VAL >= CCA_THR or receiving a packet
     #[builder(default = "3")]
-    cca_mode: u8,
+    pub cca_mode: u8,
     // In packet mode a CRC-16 (ITU-T) is calculated and is transmitted
     // after the last data byte in TX. In RX CRC is calculated and checked
     // for validity.
     #[builder(default = "true")]
-    auto_crc: bool,
+    pub auto_crc: bool,
     // If AUTOACK is set, all packets accepted by address recognition with the
     // acknowledge request flag set and a valid CFC are acknowledged 
     // 12 symbol periods after being received.
     #[builder(default = "false")]
-    auto_ack: bool,
+    pub auto_ack: bool,
     // The number of preamble bytes (2 zero-symbols) to be sent in TX mode
     // prior to the SYNCWORD, encoded in steps of 2.  The reset value of 2 is
     // compliant with IEEE 802.15.4, since the 4th zero byte is included in the
@@ -58,7 +58,7 @@ pub struct ModemControlRegister0 {
     // ...
     // 15: 16 leading zero bytes
     #[builder(default = "2")]
-    preamble_length: u8,
+    pub preamble_length: u8,
 }
 
 impl RegisterValue for ModemControlRegister0 {

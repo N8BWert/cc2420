@@ -17,22 +17,22 @@ pub struct TransmitControlRegister {
     // 2: 1.16 mA (nominal)
     // 3: 1.44 mA
     #[builder(default = "2")]
-    tx_mix_buffer_current: u8,
+    pub tx_mix_buffer_current: u8,
     // Sets the wait time after STXON before transmission is started.
     // 0: 8 symbol periods (128 us)
     // 1: 12 symbol periods (192 us)
     #[builder(default = "true")]
-    tx_turnaround: bool,
+    pub tx_turnaround: bool,
     // Selects veractor array settings in the transmit mixers
     #[builder(default = "0")]
-    tx_mix_cap_array: u8,
+    pub tx_mix_cap_array: u8,
     // Transmit mixers current:
     // 0: 1.72 mA
     // 1: 1.88 mA
     // 2: 2.05 mA
     // 3: 2.21 mA
     #[builder(default = "0")]
-    tx_mix_current: u8,
+    pub tx_mix_current: u8,
     // Current Programming of the PA
     // 0: -3 current adjustment
     // 1: -2 current adjustment
@@ -43,10 +43,10 @@ pub struct TransmitControlRegister {
     // 6: +3 current adjustment
     // 7: +4 current adjustment
     #[builder(default = "3")]
-    pa_current: u8,
+    pub pa_current: u8,
     // Output PA Level. (~0 dBm)
     #[builder(default = "31")]
-    pa_level: u8,
+    pub pa_level: u8,
 }
 
 impl RegisterValue for TransmitControlRegister {

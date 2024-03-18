@@ -17,7 +17,7 @@ pub struct ReceiveControlRegister0 {
     // 2: 1.16 mA
     // 3: 1.44 mA
     #[builder(default = "1")]
-    rx_mix_buf_current: u8,
+    pub rx_mix_buf_current: u8,
     // Controls current in the LNA gain compensation branch in AGC
     // high gain model.
     // 0: Compensation disabled
@@ -25,28 +25,28 @@ pub struct ReceiveControlRegister0 {
     // 2: 300 uA compensation current (Nominal)
     // 3: 1000 uA compensation current
     #[builder(default = "0")]
-    high_lna_gain: u8,
+    pub high_lna_gain: u8,
     // Controls current in the LNA gain compensation branch in AGC
     // Med gain mode.
     #[builder(default = "2")]
-    med_lna_gain: u8,
+    pub med_lna_gain: u8,
     // Controls current in the LNA gain compensation branch in AGC
     // Low gain mode.
     #[builder(default = "3")]
-    low_lna_gain: u8,
+    pub low_lna_gain: u8,
     // Controls main current in the LNA in AGC High gain mode.
     // 0: 240 uA LNA current (x2)
     // 1: 480 uA LNA current (x2)
     // 2: 640 uA LNA current (x2)
     // 3: 1280 uA LNA current (x2)
     #[builder(default = "2")]
-    high_lna_current: u8,
+    pub high_lna_current: u8,
     // Controls main current in the LNA in AGC Med gain mode
     #[builder(default = "1")]
-    med_lna_current: u8,
+    pub med_lna_current: u8,
     // Controls main current in the LNA in AGC Low gain mode
     #[builder(default = "1")]
-    low_lna_current: u8,
+    pub low_lna_current: u8,
 }
 
 impl RegisterValue for ReceiveControlRegister0 {
@@ -140,52 +140,52 @@ pub struct ReceiveControlRegister1 {
     // 0: 4 uA (Reset value) Use 1 instead
     // 1: 3uA Note: Recommended setting
     #[builder(default = "true")]
-    rxbpf_locur: bool,
+    pub rxbpf_locur: bool,
     // Controls reference bias current to RX bandpass filters:
     // 0: 4 uA (Default)
     // 1: 3.5 uA
     #[builder(default = "false")]
-    rxbpf_midcur: bool,
+    pub rxbpf_midcur: bool,
     // LNA low gain mode setting in AGC low gain mode.
     #[builder(default = "true")]
-    low_lowgain: bool,
+    pub low_lowgain: bool,
     // LNA low gain mode setting in AGC medium gain mode.
     #[builder(default = "false")]
-    med_lowgain: bool,
+    pub med_lowgain: bool,
     // RX Mixers high gain mode setting in AGC high gain mode.
     #[builder(default = "true")]
-    high_hgm: bool,
+    pub high_hgm: bool,
     // RX Mixers high gain mode setting in AGC medium gain mode.
     #[builder(default = "false")]
-    med_hgm: bool,
+    pub med_hgm: bool,
     // Selects varactor array setting in the LNA
     // 0: OFF
     // 1: 0.1 pF (x2) (Nominal)
     // 2: 0.2 pF (x2)
     // 3: 0x3 pF (x2)
     #[builder(default = "1")]
-    lna_cap_array: u8,
+    pub lna_cap_array: u8,
     // Control the receiver mixers output current.
     // 0: 12 uA
     // 1: 16 uA (Nominal)
     // 2: 20 uA
     // 3: 24 uA
     #[builder(default = "1")]
-    rxmix_tail: u8,
+    pub rxmix_tail: u8,
     // Controls VCM level in the mixer feedback loop
     // 0: 8 uA mixer current
     // 1: 12 uA mixer current (Nominal)
     // 2: 16 uA mixer current
     // 3: 20 uA mixer current
     #[builder(default = "1")]
-    rxmix_vcm: u8,
+    pub rxmix_vcm: u8,
     // Controls Current in the mixer
     // 0: 360 uA mixer current (x2)
     // 1: 720 uA mixer current (x2)
     // 2: 900 uA mixer current (x2) (Nominal)
     // 3: 1260 uA mixer current (x2)
     #[builder(default = "2")]
-    rxmix_current: u8,
+    pub rxmix_current: u8,
 }
 
 impl RegisterValue for ReceiveControlRegister1 {

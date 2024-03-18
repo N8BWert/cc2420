@@ -4,20 +4,61 @@
 
 #![allow(unused)]
 
-mod main_control;
-mod modem_control;
-mod rssi;
-mod sync;
-mod transmit_control;
-mod receive_control;
-mod frequency_synthesis;
-mod security_control;
-mod battery_monitor;
-mod io_configuration;
-mod manufacturer_id;
-mod fsm;
-mod override_registers;
-mod agc;
+pub mod main_control;
+use main_control::MainControlRegister;
+pub use main_control::MainControlRegisterBuilder;
+
+pub mod modem_control;
+use modem_control::{ModemControlRegister0, ModemControlRegister1};
+pub use modem_control::{ModemControlRegister0Builder, ModemControlRegister1Builder};
+
+pub mod rssi;
+use rssi::{RSSIRegister};
+pub use rssi::RSSIRegisterBuilder;
+
+pub mod sync;
+use sync::SyncWordRegister;
+pub use sync::SyncWordRegisterBuilder;
+
+pub mod transmit_control;
+use transmit_control::TransmitControlRegister;
+pub use transmit_control::TransmitControlRegisterBuilder;
+
+pub mod receive_control;
+use receive_control::{ReceiveControlRegister0, ReceiveControlRegister1};
+pub use receive_control::{ReceiveControlRegister0Builder, ReceiveControlRegister1Builder};
+
+pub mod frequency_synthesis;
+use frequency_synthesis::FrequencySynthesizerRegister;
+pub use frequency_synthesis::FrequencySynthesizerRegisterBuilder;
+
+pub mod security_control;
+use security_control::{SecurityControlRegister0, SecurityControlRegister1};
+pub use security_control::{SecurityControlRegister0Builder, SecurityControlRegister1Builder};
+
+pub mod battery_monitor;
+use battery_monitor::BatteryMonitorRegister;
+pub use battery_monitor::BatteryMonitorRegisterBuilder;
+
+pub mod io_configuration;
+use io_configuration::{IOConfigurationRegister, IOConfigurationRegister1};
+pub use io_configuration::{IOConfigurationRegisterBuilder, IOConfigurationRegister1Builder};
+
+pub mod manufacturer_id;
+use manufacturer_id::{LowerManufacturerID, UpperManufacturerID};
+pub use manufacturer_id::{LowerManufacturerIDBuilder, UpperManufacturerIDBuilder};
+
+pub mod fsm;
+use fsm::FiniteStateMachineConstants;
+pub use fsm::FiniteStateMachineConstantsBuilder;
+
+pub mod override_registers;
+use override_registers::{AndOverrideRegister, OrOverrideRegister};
+pub use override_registers::{AndOverrideRegisterBuilder, OrOverrideRegisterBuilder};
+
+pub mod agc;
+use agc::AGCControlRegister;
+pub use agc::AGCControlRegisterBuilder;
 
 /// Encode the value of struct registers to their u16 representation
 pub trait RegisterValue {

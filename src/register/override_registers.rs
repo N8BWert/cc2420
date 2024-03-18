@@ -12,57 +12,57 @@ pub struct AndOverrideRegister {
     // The VGA_RESET_N signal is used to reset the peak detectors
     // in the VGA in the RX chain.
     #[builder(default = "true")]
-    vga_reset_n: bool,
+    pub vga_reset_n: bool,
     // Global bias power down.
     #[builder(default = "true")]
-    bias_pd: bool,
+    pub bias_pd: bool,
     // The BALLUN_CTRL signal controls whether the PA should
     // receive its required external biasing (1) or not (0) by
     // controlling the RX/tX output switch.
     #[builder(default = "true")]
-    balun_ctrl: bool,
+    pub balun_ctrl: bool,
     // RXTX signal: controls whether the LO buffers (0) or the PA buffers
     // (1) should be used
     #[builder(default = "true")]
-    rxtx: bool,
+    pub rxtx: bool,
     // Powerdown of prescaler
     #[builder(default = "true")]
-    pre_pd: bool,
+    pub pre_pd: bool,
     // Powerdown of PA (negative path)
     #[builder(default = "true")]
-    pa_n_pd: bool,
+    pub pa_n_pd: bool,
     // Powerdown of PA (positive path). When PA_N_PD=1 and
     // PA_P_PD=1 the up-conversion mixers are in powerdown
     #[builder(default = "true")]
-    pa_p_pd: bool,
+    pub pa_p_pd: bool,
     // Powerdown of TX DACs
     #[builder(default = "true")]
-    dac_lpf_pd: bool,
+    pub dac_lpf_pd: bool,
     #[builder(default = "true")]
-    xosc16m_pd: bool,
+    pub xosc16m_pd: bool,
     // Powerdown control of complex bandpass receive filter
     // calibration oscillator.
     #[builder(default = "true")]
-    rxbpf_cal_pd: bool,
+    pub rxbpf_cal_pd: bool,
     // Powerdown control of charge pump
     #[builder(default = "true")]
-    chp_pd: bool,
+    pub chp_pd: bool,
     // Powerdown control of VCO, I/Q generator, LO buffers
     #[builder(default = "true")]
-    fs_pd: bool,
+    pub fs_pd: bool,
     // Powerdown control of the ADCs.
     #[builder(default = "true")]
-    adc_pd: bool,
+    pub adc_pd: bool,
     // Powerdown control of the VGA
     #[builder(default = "true")]
-    vga_pd: bool,
+    pub vga_pd: bool,
     // Powerdown control of complex bandpass receive filter.
     #[builder(default = "true")]
-    rxbpf_pd: bool,
+    pub rxbpf_pd: bool,
     // Powerdown control of LNA, down-conversion mixers and front
     // end bias.
     #[builder(default = "true")]
-    lnamix_pd: bool,
+    pub lnamix_pd: bool,
 }
 
 impl RegisterValue for AndOverrideRegister {
@@ -166,57 +166,57 @@ pub struct OrOverrideRegister {
     // The VGA_RESET_N signal is used to reset the peak detectors
     // in the VGA in the RX chain.
     #[builder(default = "false")]
-    vga_reset_n: bool,
+    pub vga_reset_n: bool,
     // Global bias power down.
     #[builder(default = "false")]
-    bias_pd: bool,
+    pub bias_pd: bool,
     // The BALLUN_CTRL signal controls whether the PA should
     // receive its required external biasing (1) or not (0) by
     // controlling the RX/tX output switch.
     #[builder(default = "false")]
-    balun_ctrl: bool,
+    pub balun_ctrl: bool,
     // RXTX signal: controls whether the LO buffers (0) or the PA buffers
     // (1) should be used
     #[builder(default = "false")]
-    rxtx: bool,
+    pub rxtx: bool,
     // Powerdown of prescaler
     #[builder(default = "false")]
-    pre_pd: bool,
+    pub pre_pd: bool,
     // Powerdown of PA (negative path)
     #[builder(default = "false")]
-    pa_n_pd: bool,
+    pub pa_n_pd: bool,
     // Powerdown of PA (positive path). When PA_N_PD=1 and
     // PA_P_PD=1 the up-conversion mixers are in powerdown
     #[builder(default = "false")]
-    pa_p_pd: bool,
+    pub pa_p_pd: bool,
     // Powerdown of TX DACs
     #[builder(default = "false")]
-    dac_lpf_pd: bool,
+    pub dac_lpf_pd: bool,
     #[builder(default = "false")]
-    xosc16m_pd: bool,
+    pub xosc16m_pd: bool,
     // Powerdown control of complex bandpass receive filter
     // calibration oscillator.
     #[builder(default = "false")]
-    rxbpf_cal_pd: bool,
+    pub rxbpf_cal_pd: bool,
     // Powerdown control of charge pump
     #[builder(default = "false")]
-    chp_pd: bool,
+    pub chp_pd: bool,
     // Powerdown control of VCO, I/Q generator, LO buffers
     #[builder(default = "false")]
-    fs_pd: bool,
+    pub fs_pd: bool,
     // Powerdown control of the ADCs.
     #[builder(default = "false")]
-    adc_pd: bool,
+    pub adc_pd: bool,
     // Powerdown control of the VGA
     #[builder(default = "false")]
-    vga_pd: bool,
+    pub vga_pd: bool,
     // Powerdown control of complex bandpass receive filter.
     #[builder(default = "false")]
-    rxbpf_pd: bool,
+    pub rxbpf_pd: bool,
     // Powerdown control of LNA, down-conversion mixers and front
     // end bias.
     #[builder(default = "false")]
-    lnamix_pd: bool,
+    pub lnamix_pd: bool,
 }
 
 impl RegisterValue for OrOverrideRegister {

@@ -18,7 +18,7 @@ pub struct RSSIRegister {
     // The CCA signal is available on the CCA pin.
     // The reset value is approximately -77dBm.
     #[builder(default = "-32")]
-    cca_threshold: i8,
+    pub cca_threshold: i8,
     // RSSI estimate on a logarithmic scale, signed number on 2's complement
     // Unit is 1dB, offset is described in the RSSI / Energy Detection
     // section on page 48 of the datasheet.
@@ -29,7 +29,7 @@ pub struct RSSIRegister {
     // is invalid.
     // READ-ONLY
     #[builder(default = "-128")]
-    rssi_value: i8,
+    pub rssi_value: i8,
 }
 
 impl RegisterValue for RSSIRegister {
