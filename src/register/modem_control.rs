@@ -2,7 +2,7 @@
 //! The Modem Control Registers
 //! 
 
-use super::RegisterValue;
+use super::Register;
 
 use alloc::string::String;
 
@@ -61,7 +61,7 @@ pub struct ModemControlRegister0 {
     pub preamble_length: u8,
 }
 
-impl RegisterValue for ModemControlRegister0 {
+impl Register for ModemControlRegister0 {
     fn register_value(&self) -> u16 {
         let mut value = 0;
 
@@ -92,6 +92,12 @@ impl RegisterValue for ModemControlRegister0 {
         value |= self.preamble_length as u16;
 
         value
+    }
+
+    fn address(&self) -> u8 { 0x11 }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 
@@ -172,7 +178,7 @@ pub struct ModemControlRegister1 {
     rx_mode: u8,
 }
 
-impl RegisterValue for ModemControlRegister1 {
+impl Register for ModemControlRegister1 {
     fn register_value(&self) -> u16 {
         let mut value = 0;
 
@@ -191,6 +197,12 @@ impl RegisterValue for ModemControlRegister1 {
         value |= self.rx_mode as u16;
 
         value
+    }
+
+    fn address(&self) -> u8 { 0x11 }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 

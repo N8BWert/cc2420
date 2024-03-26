@@ -2,7 +2,7 @@
 //! The Main Control Register
 //! 
 
-use super::RegisterValue;
+use super::Register;
 use derive_builder::Builder;
 
 /// Main Control Register
@@ -32,7 +32,7 @@ pub struct MainControlRegister {
     pub xosc16m_bypass: bool,
 }
 
-impl RegisterValue for MainControlRegister {
+impl Register for MainControlRegister {
     fn register_value(&self) -> u16 {
         let mut value = 0b11111000_00000000;
         
@@ -61,6 +61,12 @@ impl RegisterValue for MainControlRegister {
         }
         
         value
+    }
+
+    fn address(&self) -> u8 { 0x10 }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 

@@ -2,7 +2,7 @@
 //! Receive Control Register Definitions
 //! 
 
-use super::RegisterValue;
+use super::Register;
 
 use alloc::string::String;
 
@@ -49,7 +49,7 @@ pub struct ReceiveControlRegister0 {
     pub low_lna_current: u8,
 }
 
-impl RegisterValue for ReceiveControlRegister0 {
+impl Register for ReceiveControlRegister0 {
     fn register_value(&self) -> u16 {
         let mut value = 0;
 
@@ -68,6 +68,12 @@ impl RegisterValue for ReceiveControlRegister0 {
         value |= self.low_lna_current as u16;
 
         value
+    }
+
+    fn address(&self) -> u8 { 0x16 }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 
@@ -188,7 +194,7 @@ pub struct ReceiveControlRegister1 {
     pub rxmix_current: u8,
 }
 
-impl RegisterValue for ReceiveControlRegister1 {
+impl Register for ReceiveControlRegister1 {
     fn register_value(&self) -> u16 {
         let mut value = 0;
 
@@ -225,6 +231,12 @@ impl RegisterValue for ReceiveControlRegister1 {
         value |= self.rxmix_current as u16;
 
         value
+    }
+
+    fn address(&self) -> u8 { 0x17 }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 

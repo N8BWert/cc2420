@@ -2,7 +2,7 @@
 //! Rust Definition of the Security Control Register
 //! 
 
-use super::{Register, RegisterValue};
+use super::Register;
 
 use alloc::string::String;
 
@@ -58,7 +58,7 @@ pub struct SecurityControlRegister0 {
     pub sec_mode: u8,
 }
 
-impl RegisterValue for SecurityControlRegister0 {
+impl Register for SecurityControlRegister0 {
     fn register_value(&self) -> u16 {
         let mut value = 0;
 
@@ -87,6 +87,12 @@ impl RegisterValue for SecurityControlRegister0 {
         value |= self.sec_mode as u16;
 
         value
+    }
+
+    fn address(&self) -> u8 { 0x19 }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 
@@ -147,7 +153,7 @@ pub struct SecurityControlRegister1 {
     pub sec_rxl: u8,
 }
 
-impl RegisterValue for SecurityControlRegister1 {
+impl Register for SecurityControlRegister1 {
     fn register_value(&self) -> u16 {
         let mut value = 0;
 
@@ -156,6 +162,12 @@ impl RegisterValue for SecurityControlRegister1 {
         value |= self.sec_rxl as u16;
 
         value
+    }
+
+    fn address(&self) -> u8 { 0x1A }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 

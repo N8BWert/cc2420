@@ -2,7 +2,7 @@
 //! Rust Definition for the Battery Monitor Control Register
 //! 
 
-use super::RegisterValue;
+use super::Register;
 
 use alloc::string::String;
 
@@ -27,7 +27,7 @@ pub struct BatteryMonitorRegister {
     pub battmon_voltage: u8,
 }
 
-impl RegisterValue for BatteryMonitorRegister {
+impl Register for BatteryMonitorRegister {
     fn register_value(&self) -> u16 {
         let mut value = 0;
 
@@ -38,6 +38,12 @@ impl RegisterValue for BatteryMonitorRegister {
         value |= self.battmon_voltage as u16;
 
         value
+    }
+
+    fn address(&self) -> u8 { 0x1B }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 

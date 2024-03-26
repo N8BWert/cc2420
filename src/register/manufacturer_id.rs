@@ -2,7 +2,7 @@
 //! Rust Definition for the Manufacturer ID Registers.
 //! 
 
-use super::RegisterValue;
+use super::Register;
 
 use alloc::string::String;
 
@@ -22,9 +22,15 @@ pub struct LowerManufacturerID {
     pub manufacturer_id: u16,
 }
 
-impl RegisterValue for LowerManufacturerID {
+impl Register for LowerManufacturerID {
     fn register_value(&self) -> u16 {
         0
+    }
+
+    fn address(&self) -> u8 { 0x1E }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 
@@ -50,9 +56,15 @@ pub struct UpperManufacturerID {
     pub part_num: u16,
 }
 
-impl RegisterValue for UpperManufacturerID {
+impl Register for UpperManufacturerID {
     fn register_value(&self) -> u16 {
         0
+    }
+
+    fn address(&self) -> u8 { 0x1F }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 

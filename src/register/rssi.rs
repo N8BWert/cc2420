@@ -2,7 +2,7 @@
 //! RSSI and CCA Status and Control Register
 //! 
 
-use super::RegisterValue;
+use super::Register;
 
 use alloc::string::String;
 
@@ -32,13 +32,19 @@ pub struct RSSIRegister {
     pub rssi_value: i8,
 }
 
-impl RegisterValue for RSSIRegister {
+impl Register for RSSIRegister {
     fn register_value(&self) -> u16 {
         let mut value = 0;
 
         value |= (self.cca_threshold.to_be_bytes()[0] as u16) << 8;
 
         value
+    }
+
+    fn address(&self) -> u8 { 0x13 }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 

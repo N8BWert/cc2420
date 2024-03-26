@@ -9,6 +9,7 @@ extern crate alloc;
 use embedded_hal::spi::{SpiDevice, Mode, MODE_0};
 
 mod register;
+use register::*;
 
 pub mod error;
 pub use error::RadioError;
@@ -88,7 +89,7 @@ impl<SPI, SPIE> Radio<SPI, SPIE> where
     /// Flush the tx fifo
     pub fn flush_tx_fifo(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
         let mut buffer = [Strobe::FlushTx.opcode()];
-        self.spi.transfer_in_place(&mut buffer).map_err(SpiError::SpiError)?;
+        self.spi.transfer_in_place(&mut buffer).map_err(RadioError::SpiError)?;
         Ok(buffer[0].into())
     }
 
@@ -125,5 +126,26 @@ impl<SPI, SPIE> Radio<SPI, SPIE> where
         let mut buffer = [Strobe::AesEncryption.opcode()];
         self.spi.transfer_in_place(&mut buffer).map_err(RadioError::SpiError)?;
         Ok(buffer[0].into())
+    }
+
+    /// Write some register value into a given register
+    pub fn write_register(&mut self, register: &dyn register::Register) -> Result<RadioStatus, RadioError<SPIE>> {
+        let mut buffer = register.write_value();
+        self.spi.transfer_in_place(&mut buffer).map_err(RadioError::SpiError)?;
+        Ok(buffer[0].into())
+    }
+
+    /// Read the register value into itself and return the status
+    /// 
+    /// TODO: I'm not happy with this definition, so I may change it in the future.
+    /// Mostly, I thought it would be neat if register was a trait instead of an enum,
+    /// but that seems to have made definitions a bit more odd than I would have liked.
+    pub fn read_register(&mut self, register: &mut dyn register::Register) -> Result<RadioStatus, RadioError<SPIE>> {
+        let mut buffer = [0u8; 3];
+        buffer[0] = register.read_address();
+        self.spi.transfer_in_place(&mut buffer).map_err(RadioError::SpiError)?;
+        let status = buffer[0].into();
+        register.from_buffer(buffer);
+        Ok(status)
     }
 }

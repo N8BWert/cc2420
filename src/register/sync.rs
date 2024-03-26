@@ -2,7 +2,7 @@
 //! Sync Word Register
 //! 
 
-use super::{Register, RegisterValue};
+use super::Register;
 use derive_builder::Builder;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Builder)]
@@ -20,9 +20,15 @@ pub struct SyncWordRegister {
     pub sync_word: u16,
 }
 
-impl RegisterValue for SyncWordRegister {
+impl Register for SyncWordRegister {
     fn register_value(&self) -> u16 {
         self.sync_word
+    }
+
+    fn address(&self) -> u8 { 0x14 }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 

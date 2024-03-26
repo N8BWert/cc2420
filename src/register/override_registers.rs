@@ -2,7 +2,7 @@
 //! Rust Definition of the Override Registers.
 //! 
 
-use super::RegisterValue;
+use super::Register;
 
 use derive_builder::Builder;
 
@@ -65,7 +65,7 @@ pub struct AndOverrideRegister {
     pub lnamix_pd: bool,
 }
 
-impl RegisterValue for AndOverrideRegister {
+impl Register for AndOverrideRegister {
     fn register_value(&self) -> u16 {
         let mut value = 0;
 
@@ -134,6 +134,12 @@ impl RegisterValue for AndOverrideRegister {
         }
 
         value
+    }
+
+    fn address(&self) -> u8 { 0x21 }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 
@@ -219,7 +225,7 @@ pub struct OrOverrideRegister {
     pub lnamix_pd: bool,
 }
 
-impl RegisterValue for OrOverrideRegister {
+impl Register for OrOverrideRegister {
     fn register_value(&self) -> u16 {
         let mut value = 0;
 
@@ -288,6 +294,12 @@ impl RegisterValue for OrOverrideRegister {
         }
 
         value
+    }
+
+    fn address(&self) -> u8 { 0x22 }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 

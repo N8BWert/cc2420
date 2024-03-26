@@ -2,7 +2,7 @@
 //! Rust Definition of the IO Configuration Register
 //! 
 
-use super::{Register, RegisterValue};
+use super::Register;
 
 use alloc::string::String;
 
@@ -46,7 +46,7 @@ pub struct IOConfigurationRegister {
     pub fifop_threshold: u8,
 }
 
-impl RegisterValue for IOConfigurationRegister {
+impl Register for IOConfigurationRegister {
     fn register_value(&self) -> u16 {
         let mut value = 0;
 
@@ -73,6 +73,12 @@ impl RegisterValue for IOConfigurationRegister {
         value |= self.fifop_threshold as u16;
 
         value
+    }
+
+    fn address(&self) -> u8 { 0x1C }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 
@@ -127,7 +133,7 @@ pub struct IOConfigurationRegister1 {
     pub cca_mux: u8,
 }
 
-impl RegisterValue for IOConfigurationRegister1 {
+impl Register for IOConfigurationRegister1 {
     fn register_value(&self) -> u16 {
         let mut value = 0;
 
@@ -138,6 +144,12 @@ impl RegisterValue for IOConfigurationRegister1 {
         value |= self.cca_mux as u16;
 
         value
+    }
+
+    fn address(&self) -> u8 { 0x1D }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 

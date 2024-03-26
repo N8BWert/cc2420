@@ -2,7 +2,7 @@
 //! Rust Definition of the AGC Control Register
 //! 
 
-use super::RegisterValue;
+use super::Register;
 
 use alloc::string::String;
 
@@ -31,7 +31,7 @@ pub struct AGCControlRegister {
     pub lnamix_gainmode: u8,
 }
 
-impl RegisterValue for AGCControlRegister {
+impl Register for AGCControlRegister {
     fn register_value(&self) -> u16 {
         let mut value = 0;
 
@@ -44,6 +44,12 @@ impl RegisterValue for AGCControlRegister {
         value |= (self.lnamix_gainmode_o as u16) << 2;
 
         value
+    }
+
+    fn address(&self) -> u8 { 0x23 }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 

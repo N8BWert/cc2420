@@ -2,7 +2,7 @@
 //! Register Definition for the Transmit Control Register
 //! 
 
-use super::RegisterValue;
+use super::Register;
 
 use alloc::string::String;
 
@@ -49,7 +49,7 @@ pub struct TransmitControlRegister {
     pub pa_level: u8,
 }
 
-impl RegisterValue for TransmitControlRegister {
+impl Register for TransmitControlRegister {
     fn register_value(&self) -> u16 {
         let mut value = 1 << 5;
 
@@ -68,6 +68,12 @@ impl RegisterValue for TransmitControlRegister {
         value |= self.pa_level as u16;
 
         value
+    }
+
+    fn address(&self) -> u8 { 0x15 }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 

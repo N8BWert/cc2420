@@ -3,7 +3,7 @@
 //! Register
 //! 
 
-use super::RegisterValue;
+use super::Register;
 
 use alloc::string::String;
 
@@ -52,7 +52,7 @@ pub struct FrequencySynthesizerRegister {
     pub frequency: u16,
 }
 
-impl RegisterValue for FrequencySynthesizerRegister {
+impl Register for FrequencySynthesizerRegister {
     fn register_value(&self) -> u16 {
         let mut value = 0;
 
@@ -77,6 +77,12 @@ impl RegisterValue for FrequencySynthesizerRegister {
         value |= self.frequency as u16;
 
         value
+    }
+
+    fn address(&self) -> u8 { 0x18 }
+
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 

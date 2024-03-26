@@ -3,7 +3,7 @@
 //! Constants Register.
 //! 
 
-use super::RegisterValue;
+use super::Register;
 
 use alloc::string::String;
 
@@ -37,7 +37,7 @@ pub struct FiniteStateMachineConstants {
     pub tc_txend_to_paoff: u8,
 }
 
-impl RegisterValue for FiniteStateMachineConstants {
+impl Register for FiniteStateMachineConstants {
     fn register_value(&self) -> u16 {
         let mut value = 0;
 
@@ -52,6 +52,12 @@ impl RegisterValue for FiniteStateMachineConstants {
         value |= self.tc_txend_to_paoff as u16;
 
         value
+    }
+
+    fn address(&self) -> u8 { 0x20 }
+    
+    fn from_buffer(&mut self, buffer: [u8; 3]) {
+        *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
 
