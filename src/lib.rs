@@ -8,6 +8,8 @@ extern crate alloc;
 
 use embedded_hal::spi::{SpiDevice, Mode, MODE_0};
 
+mod ram;
+
 mod register;
 use register::*;
 
@@ -34,6 +36,111 @@ impl<SPI, SPIE> Radio<SPI, SPIE> where
         Self {
             spi,
         }
+    }
+
+    /// Reset the Radio
+    pub fn reset(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
+        let register = MainControlRegisterBuilder::default().reset_n(false).build().unwrap();
+        self.write_register(&register)
+    }
+
+    /// Set the sync word of the Radio
+    pub fn set_sync_word(&mut self, value: u16) -> Result<RadioStatus, RadioError<SPIE>> {
+        let register = SyncWordRegisterBuilder::default().sync_word(value).build().unwrap();
+        self.write_register(&register)
+    }
+
+    /// Select the key to use for standalone AES encryption
+    pub fn set_standalone_key(&mut self, key_0: bool) -> Result<RadioStatus, RadioError<SPIE>> {
+        let mut register = SecurityControlRegister0Builder::default().build().unwrap();
+        let _ = self.read_register(&mut register)?;
+        register.sec_sa_key_sel = key_0;
+        self.write_register(&register)
+    }
+    
+    /// Select the key to use for tx AES encryption
+    pub fn set_tx_key(&mut self, key_0: bool) -> Result<RadioStatus, RadioError<SPIE>> {
+        let mut register = SecurityControlRegister0Builder::default().build().unwrap();
+        let _ = self.read_register(&mut register)?;
+        register.sec_tx_key_sel = key_0;
+        self.write_register(&register)
+    }
+
+    /// Select the key to use for rx AES encryption
+    pub fn set_rx_key(&mut self, key_0: bool) -> Result<RadioStatus, RadioError<SPIE>> {
+        let mut register = SecurityControlRegister0Builder::default().build().unwrap();
+        let _ = self.read_register(&mut register)?;
+        register.sec_rx_key_sel = key_0;
+        self.write_register(&register)
+    }
+
+    /// Read the part number of the radio
+    pub fn read_part_number(&mut self) -> Result<u16, RadioError<SPIE>> {
+        let mut lower_16_register = LowerManufacturerIDBuilder::default().build().unwrap();
+        let _ = self.read_register(&mut lower_16_register)?;
+        let mut upper_16_register = UpperManufacturerIDBuilder::default().build().unwrap();
+        let _ = self.read_register(&mut upper_16_register)?;
+        Ok(upper_16_register.part_num << 4 | (lower_16_register.part_num as u16))
+    }
+
+    /// Read the manufacturer id of the radio
+    pub fn read_manufacturer(&mut self) -> Result<u16, RadioError<SPIE>> {
+        let mut register = LowerManufacturerIDBuilder::default().build().unwrap();
+        let _ = self.read_register(&mut register)?;
+        Ok(register.manufacturer_id)
+    }
+
+    /// Read the version number of the radio
+    pub fn version_number(&mut self) -> Result<u8, RadioError<SPIE>> {
+        let mut register = UpperManufacturerIDBuilder::default().build().unwrap();
+        let _ = self.read_register(&mut register);
+        Ok(register.version)
+    }
+
+    /// Send Data
+    pub fn send(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
+        todo!()
+    }
+
+    /// Check the whether data has been received and return the data if
+    /// it exists.
+    pub fn receive(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
+        todo!()
+    }
+
+    pub fn set_key_0(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
+        todo!()
+    }
+
+    pub fn set_key_1(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
+        todo!()
+    }
+
+    pub fn set_short_address(&mut self, value: u16) -> Result<RadioStatus, RadioError<SPIE>> {
+        let value = value.to_le_bytes();
+        let mut buffer = [0x6A | 1 << 7, 0x1 << 2, value[0], value[1]];
+        self.spi.transfer_in_place(&mut buffer).map_err(RadioError::SpiError)?;
+        Ok(buffer[0].into())
+    }
+
+    pub fn set_ieee_address(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
+        todo!()
+    }
+
+    pub fn set_pan_id(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
+        todo!()
+    }
+
+    pub fn encrypt(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
+        todo!()
+    }
+
+    pub fn set_tx_nonce(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
+        todo!()
+    }
+
+    pub fn set_rx_nonce(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
+        todo!()
     }
 
     /// Read the status of the radio
