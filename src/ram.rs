@@ -23,16 +23,18 @@ impl RAM {
     pub fn read_address(self) -> (u8, u8) {
         let value = self as u16;
         (
-            (0x7F & value) as u8,
-            (((0x3 << 7) & value) >> 2) as u8,
+            ((0x7F & value) | (1 << 7)) as u8,
+            (((0x3 << 7) & value) >> 1 | (1 << 5)) as u8,
         )
     }
 
     /// The start address of a given RAM address sector (for writing)
     pub fn write_address(self) -> (u8, u8) {
-        let mut address = self.read_address();
-        address.1 |= 1 << 5;
-        address
+        let value = self as u16;
+        (
+            ((0x7F & value) | (1 << 7)) as u8,
+            (((0x3 << 7) & value) >> 1) as u8,
+        )
     }
 
     /// The Length (in bytes) of a given RAM address sector
@@ -61,7 +63,7 @@ mod tests {
         let read_address = RAM::ShortAddress.read_address();
         assert_eq!(
             read_address,
-            (0b110_1010, 0b1000_0000)
+            (0b1110_1010, 0b1010_0000)
         )
     }
 
@@ -79,7 +81,7 @@ mod tests {
         let read_address = RAM::RxFifo.read_address();
         assert_eq!(
             read_address,
-            (0b0000_0000, 0b0100_0000)
+            (0b1000_0000, 0b0110_0000)
         )
     }
 
@@ -97,7 +99,7 @@ mod tests {
         let read_address = RAM::TxFifo.read_address();
         assert_eq!(
             read_address,
-            (0b0000_0000, 0b0000_0000)
+            (0b1000_0000, 0b0010_0000)
         )
     }
 
