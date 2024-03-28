@@ -6,9 +6,13 @@
 
 extern crate alloc;
 
+use alloc::vec;
+use alloc::vec::Vec;
+
 use embedded_hal::spi::{SpiDevice, Mode, MODE_0};
 
 mod ram;
+use ram::RAM;
 
 mod register;
 use register::*;
@@ -102,45 +106,147 @@ impl<SPI, SPIE> Radio<SPI, SPIE> where
         todo!()
     }
 
+    /// Read the Data from the TX FIFO (Presumably only used for testing)
+    pub fn read_tx_fifo(&mut self) -> Result<[u8; 128], RadioError<SPIE>> {
+        let mut buffer = [0u8; 128];
+        let _ = self.read_ram(RAM::TxFifo, &mut buffer)?;
+        Ok(buffer)
+    }
+
     /// Check the whether data has been received and return the data if
     /// it exists.
     pub fn receive(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
         todo!()
     }
 
-    pub fn set_key_0(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
-        todo!()
+    /// Not sure why you would want to do this, but the use case is outlined in
+    /// the datasheet for testing, so this is included for continuity sake
+    pub fn write_rx_fifo(&mut self, data: [u8; 128]) -> Result<RadioStatus, RadioError<SPIE>> {
+        self.write_ram(RAM::RxFifo, &data)
     }
 
-    pub fn set_key_1(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
-        todo!()
+    /// Read the entire contents of the RX FIFO.  In general, receive() should be
+    /// used in place of this function, however it may be useful for debugging
+    /// purposes.
+    pub fn read_rx_fifo(&mut self) -> Result<[u8; 128], RadioError<SPIE>> {
+        let mut buffer = [0u8; 128];
+        let _ = self.read_ram(RAM::RxFifo, &mut buffer)?;
+        Ok(buffer)
     }
 
+    /// Set the Encryption / Decryption Key 0's value in RAM.
+    pub fn set_key_0(&mut self, key: [u8; 16]) -> Result<RadioStatus, RadioError<SPIE>> {
+        self.write_ram(RAM::Key0, &key)
+    }
+
+    /// Read the Encryption / Decryption Key 0's value from RAM.
+    pub fn read_key_0(&mut self) -> Result<[u8; 16], RadioError<SPIE>> {
+        let mut buffer = [0u8; 16];
+        let _ = self.read_ram(RAM::Key0, &mut buffer)?;
+        Ok(buffer)
+    }
+
+    /// Set the Encryption / Decryption Key 1's value in RAM.
+    pub fn set_key_1(&mut self, key: [u8; 16]) -> Result<RadioStatus, RadioError<SPIE>> {
+        self.write_ram(RAM::Key1, &key)
+    }
+
+    /// Read the Encryption / Decryption Key 1's value from RAM.
+    pub fn read_key_1(&mut self) -> Result<[u8; 16], RadioError<SPIE>> {
+        let mut buffer = [0u8; 16];
+        let _ = self.read_ram(RAM::Key1, &mut buffer)?;
+        Ok(buffer)
+    }
+
+    /// Set the 16-bit short address used for address recognition.
+    /// 
+    /// Note: The value is passed in as a u16 and converted to big
+    /// endian bytes.
     pub fn set_short_address(&mut self, value: u16) -> Result<RadioStatus, RadioError<SPIE>> {
-        let value = value.to_le_bytes();
-        let mut buffer = [0x6A | 1 << 7, 0x1 << 2, value[0], value[1]];
-        self.spi.transfer_in_place(&mut buffer).map_err(RadioError::SpiError)?;
-        Ok(buffer[0].into())
+        let bytes = value.to_be_bytes();
+        self.write_ram(RAM::ShortAddress, &bytes)
     }
 
-    pub fn set_ieee_address(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
-        todo!()
+    /// Read the 16-bit short address for address recognition.
+    /// 
+    /// Note: The value returned is a u16 converted from big endian
+    /// bytes.
+    pub fn read_short_address(&mut self) -> Result<u16, RadioError<SPIE>> {
+        let mut buffer = [0u8; 2];
+        let _ = self.read_ram(RAM::ShortAddress, &mut buffer)?;
+        Ok(u16::from_be_bytes(buffer))
     }
 
-    pub fn set_pan_id(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
-        todo!()
+    /// Set the 64-bit IEEE address of the current node, used for
+    /// address recognition
+    pub fn set_ieee_address(&mut self, address: [u8; 8]) -> Result<RadioStatus, RadioError<SPIE>> {
+        self.write_ram(RAM::IEEEAddress, &address)
     }
 
-    pub fn encrypt(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
-        todo!()
+    /// Read the 64-bit IEEE address of the current node.  Used for
+    /// address recognition
+    pub fn read_ieee_address(&mut self) -> Result<[u8; 8], RadioError<SPIE>> {
+        let mut buffer = [0u8; 8];
+        let _ = self.read_ram(RAM::IEEEAddress, &mut buffer)?;
+        Ok(buffer)
     }
 
-    pub fn set_tx_nonce(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
-        todo!()
+    /// Set the 16-bit PAN identifier for address recognition.
+    /// 
+    /// Note: The value is passed in as a u16 and converted to big
+    /// endian bytes.
+    pub fn set_pan_id(&mut self, value: u16) -> Result<RadioStatus, RadioError<SPIE>> {
+        let bytes = value.to_be_bytes();
+        self.write_ram(RAM::PanID, &bytes)
     }
 
-    pub fn set_rx_nonce(&mut self) -> Result<RadioStatus, RadioError<SPIE>> {
-        todo!()
+    /// Read the 16-bit PAN identifier for address recognition.
+    /// 
+    /// Note: The value returned is a u16 converted from big endian
+    /// bytes.
+    pub fn read_pan_id(&mut self) -> Result<u16, RadioError<SPIE>> {
+        let mut buffer = [0u8; 2];
+        let _ = self.read_ram(RAM::PanID, &mut buffer)?;
+        Ok(u16::from_be_bytes(buffer))
+    }
+
+    /// Encrypt 128-bits of data using AES encryption and the selected key, using
+    /// data as an intermediary buffer
+    /// 
+    /// TODO: Check the timing for this
+    pub fn encrypt(&mut self, mut data: [u8; 16]) -> Result<[u8; 16], RadioError<SPIE>> {
+        let _ = self.write_ram(RAM::EncryptionBuffer, &data)?;
+        let _ = self.aes_encryption()?;
+        let _ = self.read_ram(RAM::EncryptionBuffer, &mut data)?;
+        Ok(data)
+    }
+
+    /// Set the Nonce used in TX in-line authentication and transmitter
+    /// counter for in-line encryption
+    pub fn set_tx_nonce(&mut self, value: [u8; 16]) -> Result<RadioStatus, RadioError<SPIE>> {
+        self.write_ram(RAM::TxNonce, &value)
+    }
+
+    /// Read the Nonce used for TX in-line authentication and transmitter
+    /// counter used for in-line encryption
+    pub fn read_tx_nonce(&mut self) -> Result<[u8; 16], RadioError<SPIE>> {
+        let mut buffer = [0u8; 16];
+        let _ = self.read_ram(RAM::TxNonce, &mut buffer)?;
+        Ok(buffer)
+    }
+
+    /// Set the Nonce used for RX in-line authentication or receiver counter for
+    /// in-line decryption
+    pub fn set_rx_nonce(&mut self, value: [u8; 16]) -> Result<RadioStatus, RadioError<SPIE>> {
+        self.write_ram(RAM::RxNonce, &value)
+    }
+
+    /// Read the Nonce used for RX in-line authentication or receiver counter for
+    /// in line-decryption
+    pub fn read_rx_nonce(&mut self) -> Result<[u8; 16], RadioError<SPIE>> {
+        let mut buffer = [0u8; 16];
+        let _ = self.read_ram(RAM::RxNonce, &mut buffer)?;
+        Ok(buffer)
     }
 
     /// Read the status of the radio
@@ -254,5 +360,35 @@ impl<SPI, SPIE> Radio<SPI, SPIE> where
         let status = buffer[0].into();
         register.from_buffer(buffer);
         Ok(status)
+    }
+
+    /// Write to a given location in RAM.
+    fn write_ram(&mut self, ram: RAM, data: &[u8]) -> Result<RadioStatus, RadioError<SPIE>> {
+        if data.len() != ram.length() {
+            return Err(RadioError::InvalidBufferLenth { expected: ram.length(), found: data.len() });
+        }
+        let mut buffer = Vec::with_capacity(2 + data.len());
+        let address = ram.write_address();
+        buffer.push(address.0);
+        buffer.push(address.1);
+        for byte in data {
+            buffer.push(*byte);
+        }
+        self.spi.transfer_in_place(buffer.as_mut_slice()).map_err(RadioError::SpiError)?;
+        Ok(buffer[0].into())
+    }
+
+    /// Read from a given location in RAM.
+    fn read_ram(&mut self, ram: RAM, buffer: &mut [u8]) -> Result<RadioStatus, RadioError<SPIE>> {
+        if buffer.len() != ram.length() {
+            return Err(RadioError::InvalidBufferLenth { expected: ram.length(), found: buffer.len() });
+        }
+        let mut write_buffer = vec![0u8; 2 + buffer.len()];
+        let address = ram.read_address();
+        write_buffer[0] = address.0;
+        write_buffer[1] = address.1;
+        self.spi.transfer_in_place(&mut write_buffer).map_err(RadioError::SpiError)?;
+        buffer[..].copy_from_slice(&write_buffer.as_slice()[2..]);
+        Ok(write_buffer[0].into())
     }
 }
