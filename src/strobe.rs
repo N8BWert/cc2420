@@ -65,6 +65,10 @@ pub enum Strobe {
     // required to be 0, but the encryption module must be idle. If not,
     // the strobe is ignored
     AesEncryption = 0x0E,
+    // Write to TX FIFO Location
+    TxFifo = 0x3E,
+    // Read from RX FIFO Location
+    RxFifo = 0x3F,
 }
 
 impl Strobe {
