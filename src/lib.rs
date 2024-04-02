@@ -5,6 +5,7 @@
 #![no_std]
 
 extern crate alloc;
+use alloc::string::ToString;
 
 use core::cmp::min;
 
@@ -30,8 +31,18 @@ pub use status::RadioStatus;
 pub mod strobe;
 pub use strobe::Strobe;
 
+pub mod config;
+pub use config::Configuration;
+
 pub const RADIO_SPI_MODE: Mode = MODE_0;
 pub const MAX_SCLK_FREQUENCY: u32 = 10_000_000;
+
+// Delay (for configuration) to wait before checking the register value has
+// been updated
+const REGISTER_WRITE_DELAY_US: u32 = 100;
+// Delay (for configuration) to wait before checking the value in RAM has
+// been updated
+const RAM_WRITE_DELAY_US: u32 = 100;
 
 pub struct Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
     SPI: SpiDevice<u8, Error=SPIE>,
@@ -55,6 +66,105 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
             sfd,
             fifo,
         }
+    }
+
+    /// Apply a given configuration to the radio and starting the crystal oscillator on the radio.
+    pub fn configure(&mut self, config: Configuration, delay: &mut dyn DelayNs) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
+        // Modem Configuration
+        let modem_config = ModemControlRegister0Builder::default()
+            .pan_coordinator(config.pan_coordinator)
+            .adr_decode(config.address_decoding)
+            .auto_crc(config.enable_crc)
+            .auto_ack(config.auto_acknowledge)
+            .preamble_length(config.preamble_length)
+            .build()
+            .map_err(|e| { RadioError::InvalidConfiguration(e.to_string()) })?;
+        self.write_register(&modem_config)?;
+        delay.delay_us(REGISTER_WRITE_DELAY_US);
+        let mut found_modem_config = ModemControlRegister0Builder::default().build().unwrap();
+        self.read_register(&mut found_modem_config)?;
+        if found_modem_config != modem_config {
+            return Err(RadioError::FailedConfiguration("Configuration of Modem Failed"));
+        }
+
+        // Sync Word Configuration
+        let sync_word = SyncWordRegisterBuilder::default()
+            .sync_word(u16::from_le_bytes(config.sync_word))
+            .build()
+            .unwrap();
+        self.write_register(&sync_word)?;
+        delay.delay_us(REGISTER_WRITE_DELAY_US);
+        let mut found_sync_word = SyncWordRegisterBuilder::default().build().unwrap();
+        self.read_register(&mut found_sync_word)?;
+        if found_sync_word != sync_word {
+            return Err(RadioError::FailedConfiguration("Configuration of Sync Word Failed"));
+        }
+
+        // Set Short Address
+        self.set_short_address(u16::from_le_bytes(config.short_address))?;
+        delay.delay_us(RAM_WRITE_DELAY_US);
+        let found_short_address = self.read_short_address()?.to_le_bytes();
+        if found_short_address != config.short_address {
+            return Err(RadioError::FailedConfiguration("Configuration of Short Address Failed"));
+        }
+
+        // Set Pan ID
+        self.set_pan_id(u16::from_le_bytes(config.pan_identifier))?;
+        delay.delay_us(RAM_WRITE_DELAY_US);
+        let found_pan_id = self.read_pan_id()?.to_le_bytes();
+        if found_pan_id != config.pan_identifier {
+            return Err(RadioError::FailedConfiguration("Configuration of Pan ID Failed"));
+        }
+
+        // Set IEEE Address
+        self.set_ieee_address(config.ieee_address)?;
+        delay.delay_us(RAM_WRITE_DELAY_US);
+        let found_ieee_address = self.read_ieee_address()?;
+        if found_ieee_address != config.ieee_address {
+            return Err(RadioError::FailedConfiguration("Configuration of IEEE Address Failed"));
+        }
+
+        // Set Tx Encryption Key
+        self.set_key_1(config.tx_encryption_key)?;
+        delay.delay_us(RAM_WRITE_DELAY_US);
+        let found_tx_key = self.read_key_1()?;
+        if found_tx_key != config.tx_encryption_key {
+            return Err(RadioError::FailedConfiguration("Configuration of Tx Encryption Key Failed"));
+        }
+
+        // Set Rx Decryption Key
+        self.set_key_0(config.rx_decryption_key)?;
+        delay.delay_us(RAM_WRITE_DELAY_US);
+        let found_rx_key = self.read_key_0()?;
+        if found_rx_key != config.rx_decryption_key {
+            return Err(RadioError::FailedConfiguration("Configuration of Rx Decryption Key Failed"));
+        }
+
+        // Start up the crystal oscillator
+        let mut status = self.xosc_on()?;
+        while !status.xosx_stable {
+            status = self.status()?;
+            delay.delay_us(100);
+        }
+
+        // Start to Calibrate Tx Frequency
+        self.calibrate_tx()
+    }
+
+    /// Power up the Radio
+    pub fn power_up(&mut self) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
+        let mut buffer = [Strobe::XOSCOn.opcode()];
+        self.spi.transfer_in_place(&mut buffer).map_err(RadioError::SpiError)?;
+        Ok(buffer[0].into())
+    }
+
+    /// Power down the Radio
+    pub fn power_down(&mut self) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
+        let mut buffer = [Strobe::DisableRxTx.opcode()];
+        self.spi.write(&buffer).map_err(RadioError::SpiError)?;
+        buffer[0] = Strobe::XOSCOff.opcode();
+        self.spi.transfer_in_place(&mut buffer).map_err(RadioError::SpiError)?;
+        Ok(buffer[0].into())
     }
 
     /// Reset the Radio
