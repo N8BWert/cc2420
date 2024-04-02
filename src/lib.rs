@@ -17,7 +17,7 @@ use embedded_hal::digital::InputPin;
 use embedded_hal::delay::DelayNs;
 
 mod ram;
-use ram::RAM;
+use ram::Ram;
 
 mod register;
 use register::*;
@@ -262,7 +262,7 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
         for start in 0..(data.len()/128) {
             let mut data_buffer = [0u8; 129];
             data_buffer[0] = Strobe::TxFifo.opcode();
-            data_buffer[1..(129)].copy_from_slice(&data[start*128..(start+1)*128]);
+            data_buffer[1..129].copy_from_slice(&data[start*128..(start+1)*128]);
             self.spi.write(&data_buffer).map_err(RadioError::SpiError)?;
 
             let buffer = if cca { [Strobe::EnableTxCCA.opcode()] } else { [Strobe::EnableTx.opcode()] };
@@ -288,7 +288,7 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
     /// Read the Data from the TX FIFO (Presumably only used for testing)
     pub fn read_tx_fifo(&mut self) -> Result<[u8; 128], RadioError<SPIE, GPIOE>> {
         let mut buffer = [0u8; 128];
-        let _ = self.read_ram(RAM::TxFifo, &mut buffer)?;
+        let _ = self.read_ram(Ram::TxFifo, &mut buffer)?;
         Ok(buffer)
     }
 
@@ -319,7 +319,7 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
     /// Not sure why you would want to do this, but the use case is outlined in
     /// the datasheet for testing, so this is included for continuity sake
     pub fn write_rx_fifo(&mut self, data: [u8; 128]) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
-        self.write_ram(RAM::RxFifo, &data)
+        self.write_ram(Ram::RxFifo, &data)
     }
 
     /// Read the entire contents of the RX FIFO.  In general, receive() should be
@@ -327,31 +327,31 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
     /// purposes.
     pub fn read_rx_fifo(&mut self) -> Result<[u8; 128], RadioError<SPIE, GPIOE>> {
         let mut buffer = [0u8; 128];
-        let _ = self.read_ram(RAM::RxFifo, &mut buffer)?;
+        let _ = self.read_ram(Ram::RxFifo, &mut buffer)?;
         Ok(buffer)
     }
 
     /// Set the Encryption / Decryption Key 0's value in RAM.
     pub fn set_key_0(&mut self, key: [u8; 16]) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
-        self.write_ram(RAM::Key0, &key)
+        self.write_ram(Ram::Key0, &key)
     }
 
     /// Read the Encryption / Decryption Key 0's value from RAM.
     pub fn read_key_0(&mut self) -> Result<[u8; 16], RadioError<SPIE, GPIOE>> {
         let mut buffer = [0u8; 16];
-        let _ = self.read_ram(RAM::Key0, &mut buffer)?;
+        let _ = self.read_ram(Ram::Key0, &mut buffer)?;
         Ok(buffer)
     }
 
     /// Set the Encryption / Decryption Key 1's value in RAM.
     pub fn set_key_1(&mut self, key: [u8; 16]) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
-        self.write_ram(RAM::Key1, &key)
+        self.write_ram(Ram::Key1, &key)
     }
 
     /// Read the Encryption / Decryption Key 1's value from RAM.
     pub fn read_key_1(&mut self) -> Result<[u8; 16], RadioError<SPIE, GPIOE>> {
         let mut buffer = [0u8; 16];
-        let _ = self.read_ram(RAM::Key1, &mut buffer)?;
+        let _ = self.read_ram(Ram::Key1, &mut buffer)?;
         Ok(buffer)
     }
 
@@ -361,7 +361,7 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
     /// endian bytes.
     pub fn set_short_address(&mut self, value: u16) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
         let bytes = value.to_be_bytes();
-        self.write_ram(RAM::ShortAddress, &bytes)
+        self.write_ram(Ram::ShortAddress, &bytes)
     }
 
     /// Read the 16-bit short address for address recognition.
@@ -370,21 +370,21 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
     /// bytes.
     pub fn read_short_address(&mut self) -> Result<u16, RadioError<SPIE, GPIOE>> {
         let mut buffer = [0u8; 2];
-        let _ = self.read_ram(RAM::ShortAddress, &mut buffer)?;
+        let _ = self.read_ram(Ram::ShortAddress, &mut buffer)?;
         Ok(u16::from_be_bytes(buffer))
     }
 
     /// Set the 64-bit IEEE address of the current node, used for
     /// address recognition
     pub fn set_ieee_address(&mut self, address: [u8; 8]) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
-        self.write_ram(RAM::IEEEAddress, &address)
+        self.write_ram(Ram::IEEEAddress, &address)
     }
 
     /// Read the 64-bit IEEE address of the current node.  Used for
     /// address recognition
     pub fn read_ieee_address(&mut self) -> Result<[u8; 8], RadioError<SPIE, GPIOE>> {
         let mut buffer = [0u8; 8];
-        let _ = self.read_ram(RAM::IEEEAddress, &mut buffer)?;
+        let _ = self.read_ram(Ram::IEEEAddress, &mut buffer)?;
         Ok(buffer)
     }
 
@@ -394,7 +394,7 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
     /// endian bytes.
     pub fn set_pan_id(&mut self, value: u16) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
         let bytes = value.to_be_bytes();
-        self.write_ram(RAM::PanID, &bytes)
+        self.write_ram(Ram::PanID, &bytes)
     }
 
     /// Read the 16-bit PAN identifier for address recognition.
@@ -403,7 +403,7 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
     /// bytes.
     pub fn read_pan_id(&mut self) -> Result<u16, RadioError<SPIE, GPIOE>> {
         let mut buffer = [0u8; 2];
-        let _ = self.read_ram(RAM::PanID, &mut buffer)?;
+        let _ = self.read_ram(Ram::PanID, &mut buffer)?;
         Ok(u16::from_be_bytes(buffer))
     }
 
@@ -412,37 +412,37 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
     /// 
     /// TODO: Check the timing for this
     pub fn encrypt(&mut self, mut data: [u8; 16]) -> Result<[u8; 16], RadioError<SPIE, GPIOE>> {
-        let _ = self.write_ram(RAM::EncryptionBuffer, &data)?;
+        let _ = self.write_ram(Ram::EncryptionBuffer, &data)?;
         let _ = self.aes_encryption()?;
-        let _ = self.read_ram(RAM::EncryptionBuffer, &mut data)?;
+        let _ = self.read_ram(Ram::EncryptionBuffer, &mut data)?;
         Ok(data)
     }
 
     /// Set the Nonce used in TX in-line authentication and transmitter
     /// counter for in-line encryption
     pub fn set_tx_nonce(&mut self, value: [u8; 16]) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
-        self.write_ram(RAM::TxNonce, &value)
+        self.write_ram(Ram::TxNonce, &value)
     }
 
     /// Read the Nonce used for TX in-line authentication and transmitter
     /// counter used for in-line encryption
     pub fn read_tx_nonce(&mut self) -> Result<[u8; 16], RadioError<SPIE, GPIOE>> {
         let mut buffer = [0u8; 16];
-        let _ = self.read_ram(RAM::TxNonce, &mut buffer)?;
+        let _ = self.read_ram(Ram::TxNonce, &mut buffer)?;
         Ok(buffer)
     }
 
     /// Set the Nonce used for RX in-line authentication or receiver counter for
     /// in-line decryption
     pub fn set_rx_nonce(&mut self, value: [u8; 16]) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
-        self.write_ram(RAM::RxNonce, &value)
+        self.write_ram(Ram::RxNonce, &value)
     }
 
     /// Read the Nonce used for RX in-line authentication or receiver counter for
     /// in line-decryption
     pub fn read_rx_nonce(&mut self) -> Result<[u8; 16], RadioError<SPIE, GPIOE>> {
         let mut buffer = [0u8; 16];
-        let _ = self.read_ram(RAM::RxNonce, &mut buffer)?;
+        let _ = self.read_ram(Ram::RxNonce, &mut buffer)?;
         Ok(buffer)
     }
 
@@ -555,12 +555,12 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
         buffer[0] = register.read_address();
         self.spi.transfer_in_place(&mut buffer).map_err(RadioError::SpiError)?;
         let status = buffer[0].into();
-        register.from_buffer(buffer);
+        register.fill_from_buffer(buffer);
         Ok(status)
     }
 
     /// Write to a given location in RAM.
-    fn write_ram(&mut self, ram: RAM, data: &[u8]) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
+    fn write_ram(&mut self, ram: Ram, data: &[u8]) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
         if data.len() != ram.length() {
             return Err(RadioError::InvalidBufferLenth { expected: ram.length(), found: data.len() });
         }
@@ -576,7 +576,7 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
     }
 
     /// Read from a given location in RAM.
-    fn read_ram(&mut self, ram: RAM, buffer: &mut [u8]) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
+    fn read_ram(&mut self, ram: Ram, buffer: &mut [u8]) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
         if buffer.len() != ram.length() {
             return Err(RadioError::InvalidBufferLenth { expected: ram.length(), found: buffer.len() });
         }

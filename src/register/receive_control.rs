@@ -72,7 +72,7 @@ impl Register for ReceiveControlRegister0 {
 
     fn address(&self) -> u8 { 0x16 }
 
-    fn from_buffer(&mut self, buffer: [u8; 3]) {
+    fn fill_from_buffer(&mut self, buffer: [u8; 3]) {
         *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
@@ -235,7 +235,7 @@ impl Register for ReceiveControlRegister1 {
 
     fn address(&self) -> u8 { 0x17 }
 
-    fn from_buffer(&mut self, buffer: [u8; 3]) {
+    fn fill_from_buffer(&mut self, buffer: [u8; 3]) {
         *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }

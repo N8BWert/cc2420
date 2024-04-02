@@ -48,7 +48,7 @@ impl Register for AGCControlRegister {
 
     fn address(&self) -> u8 { 0x23 }
 
-    fn from_buffer(&mut self, buffer: [u8; 3]) {
+    fn fill_from_buffer(&mut self, buffer: [u8; 3]) {
         *self = u16::from_le_bytes(buffer[1..3].try_into().unwrap()).into();
     }
 }
@@ -80,7 +80,7 @@ impl AGCControlRegisterBuilder {
 
         if let Some(lnamix_gainmode) = self.lnamix_gainmode {
             if lnamix_gainmode > 3 {
-                return Err("Invalid LNAMIX_GAINMODE. 0<=LNAMIX_GAINMODE<=3".into()).into();
+                return Err("Invalid LNAMIX_GAINMODE. 0<=LNAMIX_GAINMODE<=3".into());
             }
         }
 

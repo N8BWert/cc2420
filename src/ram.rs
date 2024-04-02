@@ -5,7 +5,7 @@
 #![allow(unused)]
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum RAM {
+pub enum Ram {
     ShortAddress = 0x16A,
     PanID = 0x168,
     IEEEAddress = 0x160,
@@ -18,7 +18,7 @@ pub enum RAM {
     TxFifo = 0x000,
 }
 
-impl RAM {
+impl Ram {
     /// The start address of a given RAM address sector (for reading)
     pub fn read_address(self) -> (u8, u8) {
         let value = self as u16;
@@ -60,7 +60,7 @@ mod tests {
 
     #[test]
     fn test_get_read_address_bank_2() {
-        let read_address = RAM::ShortAddress.read_address();
+        let read_address = Ram::ShortAddress.read_address();
         assert_eq!(
             read_address,
             (0b1110_1010, 0b1010_0000)
@@ -69,7 +69,7 @@ mod tests {
 
     #[test]
     fn test_get_write_address_bank_2() {
-        let write_address = RAM::ShortAddress.write_address();
+        let write_address = Ram::ShortAddress.write_address();
         assert_eq!(
             write_address,
             (0b1110_1010, 0b1000_0000)
@@ -78,7 +78,7 @@ mod tests {
 
     #[test]
     fn test_get_read_address_bank_1() {
-        let read_address = RAM::RxFifo.read_address();
+        let read_address = Ram::RxFifo.read_address();
         assert_eq!(
             read_address,
             (0b1000_0000, 0b0110_0000)
@@ -87,7 +87,7 @@ mod tests {
 
     #[test]
     fn test_get_write_address_bank_1() {
-        let write_address = RAM::RxFifo.write_address();
+        let write_address = Ram::RxFifo.write_address();
         assert_eq!(
             write_address,
             (0b1000_0000, 0b0100_0000)
@@ -96,7 +96,7 @@ mod tests {
 
     #[test]
     fn test_get_read_address_bank_0() {
-        let read_address = RAM::TxFifo.read_address();
+        let read_address = Ram::TxFifo.read_address();
         assert_eq!(
             read_address,
             (0b1000_0000, 0b0010_0000)
@@ -105,7 +105,7 @@ mod tests {
 
     #[test]
     fn test_get_write_address_bank_0() {
-        let write_address = RAM::TxFifo.write_address();
+        let write_address = Ram::TxFifo.write_address();
         assert_eq!(
             write_address,
             (0b1000_0000, 0b0000_0000)

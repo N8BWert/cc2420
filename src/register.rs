@@ -67,7 +67,7 @@ pub trait Register {
     /// Get the address of a register
     fn address(&self) -> u8;
     /// Decipher a register from the buffer
-    fn from_buffer(&mut self, buffer: [u8; 3]);
+    fn fill_from_buffer(&mut self, buffer: [u8; 3]);
     // Get the read address of a register
     fn read_address(&self) -> u8 { self.address() }
     // Get the write address of a register

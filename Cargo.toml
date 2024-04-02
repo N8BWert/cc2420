@@ -2,6 +2,11 @@
 name = "cc2420"
 version = "0.1.0"
 edition = "2021"
+authors = ["Nate Wert <n8.wert.b@gmail.com>"]
+description = "Rust Driver for the IEEE 802.15.4 Compatible CC2420 Chip"
+readme = "README.md"
+keywords = ["cc2420", "embedded-hal", "802.15.4", "Thread", "ZigBee", "rf-radio"]
+categories = ["no_std", "alloc"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
