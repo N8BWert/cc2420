@@ -48,6 +48,8 @@ pub struct Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
     SPI: SpiDevice<u8, Error=SPIE>,
     SFD: InputPin<Error=GPIOE>,
     FIFO: InputPin<Error=GPIOE> {
+    // Whether or not the radio is powered up
+    pub powered_up: bool,
     // SPI Peripheral Device
     spi: SPI,
     // Data Sent Interrupt
@@ -62,6 +64,7 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
     FIFO: InputPin<Error=GPIOE> {
     pub fn new(spi: SPI, sfd: SFD, fifo: FIFO) -> Self {
         Self {
+            powered_up: false,
             spi,
             sfd,
             fifo,
@@ -147,6 +150,8 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
             delay.delay_us(100);
         }
 
+        self.powered_up = true;
+
         // Start to Calibrate Tx Frequency
         self.calibrate_tx()
     }
@@ -155,6 +160,7 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
     pub fn power_up(&mut self) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
         let mut buffer = [Strobe::XOSCOn.opcode()];
         self.spi.transfer_in_place(&mut buffer).map_err(RadioError::SpiError)?;
+        self.powered_up = true;
         Ok(buffer[0].into())
     }
 
@@ -164,6 +170,7 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
         self.spi.write(&buffer).map_err(RadioError::SpiError)?;
         buffer[0] = Strobe::XOSCOff.opcode();
         self.spi.transfer_in_place(&mut buffer).map_err(RadioError::SpiError)?;
+        self.powered_up = false;
         Ok(buffer[0].into())
     }
 
@@ -289,6 +296,13 @@ impl<SPI, SPIE, SFD, GPIOE, FIFO> Radio<SPI, SPIE, SFD, GPIOE, FIFO> where
     /// interrupt, which completes the same functionality as this)
     pub fn data_ready(&mut self) -> Result<bool, RadioError<SPIE, GPIOE>> {
         self.fifo.is_high().map_err(RadioError::GpioError)
+    }
+
+    /// Start Receiving Data
+    pub fn start_receiving(&mut self) -> Result<RadioStatus, RadioError<SPIE, GPIOE>> {
+        let mut buffer = [Strobe::EnableRx.opcode()];
+        self.spi.transfer_in_place(&mut buffer).map_err(RadioError::SpiError)?;
+        Ok(buffer[0].into())
     }
 
     /// Read data from the RX FIFO (equal to the length of the buffer) into a
